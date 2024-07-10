@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlotBookingAPI", "SlotBookingAPI\SlotBookingAPI.csproj", "{1DA100D0-BEEA-4695-83CC-718F34C6A13C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlotBooking.API", "SlotBooking.API\SlotBooking.API.csproj", "{1DA100D0-BEEA-4695-83CC-718F34C6A13C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlotBooking.Data", "SlotBooking.Data\SlotBooking.Data.csproj", "{4ECF7ABD-5A51-469C-8EED-4F0252B8EF3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlotBooking.Domain", "SlotBooking.Domain\SlotBooking.Domain.csproj", "{A7EEEA19-BD58-46A9-915E-722F7F32B7BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlotBooking.Data.UnitTests", "SlotBooking.Data.UnitTests\SlotBooking.Data.UnitTests.csproj", "{174EEA76-E9EF-46C3-AD6A-9FA894A418D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlotBooking.Domain.UnitTests", "SlotBooking.Domain.UnitTests\SlotBooking.Domain.UnitTests.csproj", "{4BDAF136-8AF7-4D7A-9A6B-C2EC14FB0A51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlotBooking.API.UnitTests", "SlotBooking.API.UnitTests\SlotBooking.API.UnitTests.csproj", "{78187774-0CAA-487D-9417-BBE3DB8C72DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8CD36639-1011-4014-814B-9C7DF26174AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +30,30 @@ Global
 		{1DA100D0-BEEA-4695-83CC-718F34C6A13C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DA100D0-BEEA-4695-83CC-718F34C6A13C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DA100D0-BEEA-4695-83CC-718F34C6A13C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ECF7ABD-5A51-469C-8EED-4F0252B8EF3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ECF7ABD-5A51-469C-8EED-4F0252B8EF3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ECF7ABD-5A51-469C-8EED-4F0252B8EF3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ECF7ABD-5A51-469C-8EED-4F0252B8EF3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7EEEA19-BD58-46A9-915E-722F7F32B7BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7EEEA19-BD58-46A9-915E-722F7F32B7BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7EEEA19-BD58-46A9-915E-722F7F32B7BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7EEEA19-BD58-46A9-915E-722F7F32B7BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{174EEA76-E9EF-46C3-AD6A-9FA894A418D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{174EEA76-E9EF-46C3-AD6A-9FA894A418D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{174EEA76-E9EF-46C3-AD6A-9FA894A418D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{174EEA76-E9EF-46C3-AD6A-9FA894A418D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BDAF136-8AF7-4D7A-9A6B-C2EC14FB0A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BDAF136-8AF7-4D7A-9A6B-C2EC14FB0A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BDAF136-8AF7-4D7A-9A6B-C2EC14FB0A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BDAF136-8AF7-4D7A-9A6B-C2EC14FB0A51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78187774-0CAA-487D-9417-BBE3DB8C72DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78187774-0CAA-487D-9417-BBE3DB8C72DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78187774-0CAA-487D-9417-BBE3DB8C72DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78187774-0CAA-487D-9417-BBE3DB8C72DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{174EEA76-E9EF-46C3-AD6A-9FA894A418D9} = {8CD36639-1011-4014-814B-9C7DF26174AE}
+		{4BDAF136-8AF7-4D7A-9A6B-C2EC14FB0A51} = {8CD36639-1011-4014-814B-9C7DF26174AE}
+		{78187774-0CAA-487D-9417-BBE3DB8C72DA} = {8CD36639-1011-4014-814B-9C7DF26174AE}
 	EndGlobalSection
 EndGlobal

@@ -1,7 +1,7 @@
 using SlotBooking.Data;
 using SlotBooking.Domain;
 
-namespace SlotBookingAPI;
+namespace SlotBooking.API;
 
 public class Program
 {
@@ -20,7 +20,6 @@ public class Program
         builder.Services.AddScoped<ISlotRepository, SlotRepository>();
         builder.Services.AddScoped<ISlotService, SlotService>();
         builder.Services.AddRouting();
-        //builder.Services.AddHttpsRedirection();
 
         var app = builder.Build();
 
