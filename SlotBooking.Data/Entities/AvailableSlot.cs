@@ -1,10 +1,10 @@
 namespace SlotBooking.Data.Entities;
 
-public class AvailableSlot
+public record AvailableSlot
 {
-    public DateTime Start { get; set; }
-    public DateTime End { get; set; }
+    public DateTimeOffset Start { get; set; }
+    public DateTimeOffset End { get; set; }
     public string? Comments { get; set; }
-    public string? FacilityId { get; set; }
-    public Patient? Patient { get; set; }
+    public string FacilityId { get; set; }
+    public Patient Patient { get; set; }
 }

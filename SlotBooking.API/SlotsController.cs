@@ -12,7 +12,7 @@ namespace SlotBooking.API;
 public class SlotsController : ControllerBase
 {
     private readonly ISlotService _slotService;
-    
+
     /// <summary>
     /// Constructor for initializing a <see cref="SlotsController"/> class instance.
     /// </summary>
@@ -21,7 +21,7 @@ public class SlotsController : ControllerBase
     {
         _slotService = slotService;
     }
-    
+
     /// <summary>
     /// Gets all available slots for a week starting from the specified date.
     /// </summary>
@@ -30,16 +30,12 @@ public class SlotsController : ControllerBase
     [HttpGet("{date}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<AvailableSlotsScheduleDto>> GetAvailableSlots(DateTime date)
+    public async Task<ActionResult<AvailableSlotsScheduleDto>> GetAvailableSlots(DateTimeOffset date)
     {
-        if (date.DayOfWeek != DayOfWeek.Monday)
-        {
-            return BadRequest("The date should be a Monday.");
-        }
-        
-        return Ok(await _slotService.GetAvailableSlotsAsync(date));
+        var availableSlotsScheduleDto = await _slotService.GetAvailableSlotsAsync(date);
+        return Ok(availableSlotsScheduleDto);
     }
-    
+
     /// <summary>
     /// Book the specified slot for the patient.
     /// </summary>
@@ -50,11 +46,7 @@ public class SlotsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> PostSlot(BookAvailableSlotDto bookAvailableSlotDto)
     {
-        if (bookAvailableSlotDto is null)
-        {
-            return BadRequest("Provide slot and patient details.");
-        }
-        
-        return Ok(await _slotService.CreateSlotAsync(bookAvailableSlotDto));
+        await _slotService.BookSlotAsync(bookAvailableSlotDto);
+        return Ok();
     }
 }

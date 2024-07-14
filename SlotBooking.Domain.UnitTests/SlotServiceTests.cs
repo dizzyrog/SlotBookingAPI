@@ -1,8 +1,12 @@
 using System.Net;
+using NUnit.Framework;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SlotBooking.Data;
 using SlotBooking.Data.Entities;
 using SlotBooking.Domain.DTOs;
+using SlotBooking.Domain.Exceptions;
+using SlotBooking.Domain.Validators;
 
 namespace SlotBooking.Domain.UnitTests;
 
@@ -16,17 +20,18 @@ public class SlotServiceTests
     public void SetUp()
     {
         _mockRepository = new Mock<ISlotRepository>();
-        _slotService = new SlotService(_mockRepository.Object);
+        _slotService = new SlotService(_mockRepository.Object, new GetAvailableSlotsForADateValidator(), 
+            new Mock<ILogger<SlotService>>().Object );
     }
 
     [Test]
     public async Task GetAvailableSlotsAsync_ReturnsAvailableSlotsSchedule_WhenCorrectInput()
     {
         // Arrange
-        var date = new DateTime(2024, 7, 29);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestBusySlotsSchedule(date);
 
-        _mockRepository.Setup(r => r.GetBusySlotsAsync(date)).ReturnsAsync(busySlotsSchedule);
+        _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
 
         // Act
         var availableSlotsAsync = await _slotService.GetAvailableSlotsAsync(date);
@@ -55,10 +60,10 @@ public class SlotServiceTests
     public async Task GetAvailableSlotsAsync_ReturnsAvailableSlotsSchedule_WhenAllSlotsBusy()
     {
         // Arrange
-        var date = new DateTime(2024, 7, 29);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestAllSlotsAreBusySchedule(date);
 
-        _mockRepository.Setup(r => r.GetBusySlotsAsync(date)).ReturnsAsync(busySlotsSchedule);
+        _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
 
         // Act
         var availableSlotsAsync = await _slotService.GetAvailableSlotsAsync(date);
@@ -80,10 +85,10 @@ public class SlotServiceTests
     public async Task GetAvailableSlotsAsync_ReturnsAvailableSlotsSchedule_WhenNoBusySlots()
     {
         // Arrange
-        var date = new DateTime(2024, 7, 29);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestNoBusySlotsSchedule(date);
 
-        _mockRepository.Setup(r => r.GetBusySlotsAsync(date)).ReturnsAsync(busySlotsSchedule);
+        _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
 
         // Act
         var availableSlotsAsync = await _slotService.GetAvailableSlotsAsync(date);
@@ -102,36 +107,70 @@ public class SlotServiceTests
     }
     
     [Test]
-    public async Task CreateSlotAsync_ReturnsOk_WhenCorrectInput()
+    public async Task BookSlotAsync_DoesNotThrowException_WhenCorrectInput()
     {
         // Arrange
         var bookSlotDto = CreateTestBookAvailableSlotDto();
+        
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var busySlotsSchedule = CreateSimpleTestNoBusySlotsSchedule(date);
+        
+        _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
 
-        _mockRepository.Setup(r => r.PostSlotAsync(It.IsAny<AvailableSlot>())).ReturnsAsync(HttpStatusCode.OK);
-
-        // Act
-        var result = await _slotService.CreateSlotAsync(bookSlotDto);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(HttpStatusCode.OK));
+        try
+        {
+            // Act
+            await _slotService.BookSlotAsync(bookSlotDto);
+        }
+        catch (FailedToBookAvailableSlotException)
+        {
+            // Assert
+            Assert.Fail("Expected no BookAvailableSlotException to be thrown, but one was thrown.");
+        }
     }
 
     [Test]
-    public async Task CreateSlotAsync_Failure_ReturnsBadRequest()
+    public async Task BookSlotAsync_ThrowsFailedToBookAvailableSlotException_WhenExternalServiceFails()
+    {
+        // Arrange
+        var bookSlotDto = CreateTestBookAvailableSlotDto();
+        
+        // {
+        //     FacilityId = new Guid().ToString(),
+        //     Start = new DateTimeOffset(2023, 7, 11, 10, 0, 0, DateTimeOffset.Now.Offset),
+        //     End = new DateTimeOffset(2023, 7, 11, 11, 0, 0, DateTimeOffset.Now.Offset),
+        //     Comments = "Test Booking",
+        //     Patient = new PatientDto()
+        //     {
+        //         Email = "test@example.com",
+        //         Name = "John",
+        //         Phone = "1234567890",
+        //         SecondName = "Doe"
+        //     }
+        // };
+
+        _mockRepository.Setup(r => r.BookSlotAsync(It.IsAny<AvailableSlot>()))
+            .ThrowsAsync(new HttpRequestException());
+        //_mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
+
+        // Act&Assert
+        Assert.ThrowsAsync<FailedToBookAvailableSlotException>(() =>  _slotService.BookSlotAsync(bookSlotDto));
+    }
+    
+    [Test]
+    public async Task BookSlotAsync_ThrowsSlotNotAvailableException_WhenSlotIsNotAvailable()
     {
         // Arrange
         var bookSlotDto = CreateTestBookAvailableSlotDto();
 
-        _mockRepository.Setup(r => r.PostSlotAsync(It.IsAny<AvailableSlot>())).ReturnsAsync(HttpStatusCode.BadRequest);
+        //_mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
+       // _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
 
-        // Act
-        var result = await _slotService.CreateSlotAsync(bookSlotDto);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(HttpStatusCode.BadRequest));
+        // Act&Assert
+        Assert.ThrowsAsync<SlotNotAvailableException>(() =>  _slotService.BookSlotAsync(bookSlotDto));
     }
 
-    private BusySlotsSchedule CreateSimpleTestBusySlotsSchedule(DateTime date)
+    private BusySlotsSchedule CreateSimpleTestBusySlotsSchedule(DateTimeOffset date)
     {
         var schedule = new BusySlotsSchedule
         {
@@ -201,7 +240,7 @@ public class SlotServiceTests
         return schedule;
     }
     
-    private BusySlotsSchedule CreateSimpleTestAllSlotsAreBusySchedule(DateTime date)
+    private BusySlotsSchedule CreateSimpleTestAllSlotsAreBusySchedule(DateTimeOffset date)
     {
         var schedule = new BusySlotsSchedule
         {
@@ -263,7 +302,7 @@ public class SlotServiceTests
         return schedule;
     }
     
-    private BusySlotsSchedule CreateSimpleTestNoBusySlotsSchedule(DateTime date)
+    private BusySlotsSchedule CreateSimpleTestNoBusySlotsSchedule(DateTimeOffset date)
     {
         var schedule = new BusySlotsSchedule
         {
@@ -298,8 +337,8 @@ public class SlotServiceTests
         var bookSlotDto = new BookAvailableSlotDto
         {
             FacilityId = new Guid().ToString(),
-            Start = new DateTime(2023, 7, 11, 10, 0, 0),
-            End = new DateTime(2023, 7, 11, 11, 0, 0),
+            Start = new DateTimeOffset(2023, 7, 11, 10, 0, 0, DateTimeOffset.Now.Offset),
+            End = new DateTimeOffset(2023, 7, 11, 11, 0, 0, DateTimeOffset.Now.Offset),
             Comments = "Test Booking",
             Patient = new PatientDto()
             {

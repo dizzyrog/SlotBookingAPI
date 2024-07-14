@@ -1,8 +1,8 @@
 namespace SlotBooking.Domain.DTOs;
 
-public class AvailableSlotDto
+public record AvailableSlotDto
 {
-    public DateTime Start { get; set; }
+    public DateTimeOffset Start { get; set; }
 
-    public DateTime End { get; set; }
+    public DateTimeOffset End { get; set; }
 }

@@ -1,11 +1,11 @@
 using Newtonsoft.Json;
 
 namespace SlotBooking.Data.Entities;
-public class BusySlot
+public record BusySlot
 {
     [JsonProperty("Start")]
-    public DateTime Start { get; set; }
+    public DateTimeOffset Start { get; set; }
 
     [JsonProperty("End")]
-    public DateTime End { get; set; }
+    public DateTimeOffset End { get; set; }
 }

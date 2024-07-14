@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace SlotBooking.Data.Entities;
 
-public class WorkPeriod
+public record WorkPeriod
 {
     [JsonProperty("StartHour")]
     public int StartHour { get; set; }

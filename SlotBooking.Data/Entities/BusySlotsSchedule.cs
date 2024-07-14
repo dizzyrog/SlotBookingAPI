@@ -3,10 +3,10 @@ using Newtonsoft.Json.Linq;
 
 namespace SlotBooking.Data.Entities;
 
-public class BusySlotsSchedule
+public record BusySlotsSchedule
 {
     [JsonProperty("Facility")]
-    public Facility? Facility { get; set; }
+    public Facility Facility { get; set; }
 
     [JsonProperty("SlotDurationMinutes")]
     public int SlotDurationMinutes { get; set; }

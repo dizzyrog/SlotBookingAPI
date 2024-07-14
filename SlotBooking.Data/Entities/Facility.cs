@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 namespace SlotBooking.Data.Entities;
 
-public class Facility
+public record Facility
 {
     [JsonProperty("FacilityId")]
-    public string? FacilityId { get; set; }
+    public string FacilityId { get; set; }
 
     [JsonProperty("Name")]
     public string? Name { get; set; }

@@ -1,8 +1,8 @@
 namespace SlotBooking.Domain.DTOs;
 
-public class DayScheduleDto
+public record DayScheduleDto
 {
-    public string? DayOfWeek { get; set; }
+    public string DayOfWeek { get; set; }
 
     public List<AvailableSlotDto> AvailableSlots { get; set; } = new();
 }

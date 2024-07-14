@@ -15,7 +15,7 @@ public class SlotRepository(HttpClient httpClient, IOptions<SlotServiceOptions> 
     private readonly SlotServiceOptions _slotServiceOptions = slotServiceOptions.Value;
 
     /// <inheritdoc />
-    public async Task<BusySlotsSchedule> GetBusySlotsAsync(DateTime date)
+    public async Task<BusySlotsSchedule> GetBusySlotsScheduleAsync(DateTimeOffset date)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, 
             $"{_slotServiceOptions.BaseUrl}/GetWeeklyAvailability/{date:yyyyMMdd}");
@@ -37,7 +37,7 @@ public class SlotRepository(HttpClient httpClient, IOptions<SlotServiceOptions> 
     }
     
     /// <inheritdoc />
-    public async Task<HttpStatusCode> PostSlotAsync(AvailableSlot availableSlot)
+    public async Task<HttpStatusCode> BookSlotAsync(AvailableSlot availableSlot)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, 
             $"{_slotServiceOptions.BaseUrl}/TakeSlot");

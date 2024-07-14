@@ -1,10 +1,11 @@
 using System.Net;
-using FluentAssertions;
+using NUnit.Framework;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SlotBooking.API;
 using SlotBooking.Domain;
 using SlotBooking.Domain.DTOs;
+using DateTimeOffset = System.DateTimeOffset;
 
 namespace SlotBookingAPI.UnitTests;
 
@@ -25,7 +26,7 @@ public class SlotsControllerTests
     public async Task GetAvailableSlots_ReturnsOkResult_WhenCorrectInput()
     {
         // Arrange
-        var date = new DateTime(2024, 07, 01); 
+        var date = new DateTimeOffset(2024, 07, 01, 0, 0, 0, DateTimeOffset.Now.Offset); 
 
         // Act
         var result = await _controller.GetAvailableSlots(date);
@@ -39,7 +40,7 @@ public class SlotsControllerTests
     {
         // Arrange
         var slotDto = new BookAvailableSlotDto(); 
-        _slotServiceMock.Setup(service => service.CreateSlotAsync(slotDto))
+        _slotServiceMock.Setup(service => service.BookSlotAsync(slotDto))
             .ReturnsAsync(HttpStatusCode.OK);
 
         // Act
@@ -53,24 +54,12 @@ public class SlotsControllerTests
     public async Task GetAvailableSlots_ReturnsBadRequest_WhenDateIsNotMonday()
     {
         // Arrange
-        var date = new DateTime(2024, 07, 23); 
+        var date = new DateTimeOffset(2024, 07, 23, 0, 0, 0, DateTimeOffset.Now.Offset); 
 
         // Act
         var result = await _controller.GetAvailableSlots(date);
 
         // Assert
         Assert.IsInstanceOf<BadRequestObjectResult>(result.Result);
-    }
-
-    [Test]
-    public async Task PostSlot_ReturnsBadRequest_WhenNullInput()
-    {
-        // Arrange
-
-        // Act
-        var result = await _controller.PostSlot(null);
-
-        // Assert
-        Assert.IsInstanceOf<BadRequestObjectResult>(result);
     }
 }

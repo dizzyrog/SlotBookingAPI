@@ -1,10 +1,9 @@
 using System.Net;
+using NUnit.Framework;
 using System.Net.Http.Headers;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
-using Moq.Language.Flow;
 using Moq.Protected;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -28,9 +27,9 @@ public class SlotRepositoryTests
 
         _slotServiceOptions = Options.Create(new SlotServiceOptions
         {
-            BaseUrl = "https://draliatest.azurewebsites.net/api/availability",
-            Username = "techuser",
-            Password = "secretpassWord"
+            BaseUrl = "https://test.net/api/availability",
+            Username = "testuser1234",
+            Password = "pass1234"
         });
 
         _slotRepository = new SlotRepository(httpClient, _slotServiceOptions);
@@ -40,7 +39,7 @@ public class SlotRepositoryTests
     public async Task GetScheduleAsync_ReturnsSchedule_WhenCorrectInput()
     {
         // Arrange
-        var date = new DateTime(2024, 8, 2);
+        var date = new DateTimeOffset(2024, 8, 2, 0, 0, 0, DateTimeOffset.Now.Offset);
         var jsonResponseMock = JToken.Parse(
             await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "appsettings.test.json"))
         ).ToString();
@@ -48,10 +47,10 @@ public class SlotRepositoryTests
         var content = new StringContent(jsonResponseMock, Encoding.UTF8, "application/json");
         
         var request = CreateHttpRequestMessage(content, $"GetWeeklyAvailability/{date:yyyyMMdd}", HttpMethod.Get);
-        await SetupProtectedSendAsyncMock(request, HttpStatusCode.OK);
+        SetupProtectedSendAsyncMock(request, HttpStatusCode.OK);
 
         // Act
-        var scheduleResponse = await _slotRepository.GetBusySlotsAsync(date);
+        var scheduleResponse = await _slotRepository.GetBusySlotsScheduleAsync(date);
 
         // Assert
         Assert.IsNotNull(scheduleResponse);
@@ -65,26 +64,26 @@ public class SlotRepositoryTests
     }
 
     [Test]
-    public async Task GetScheduleAsync_ThrowsHttpRequestException_WhenResponseIsNotSuccessful()
+    public void GetScheduleAsync_ThrowsHttpRequestException_WhenResponseIsNotSuccessful()
     {
         // Arrange
-        var date = new DateTime(2024, 8, 2);
+        var date = new DateTimeOffset(2024, 8, 2, 0, 0, 0, DateTimeOffset.Now.Offset);
         var request = CreateHttpRequestMessage(null, $"GetWeeklyAvailability/{date:yyyyMMdd}", HttpMethod.Get);
-        await SetupProtectedSendAsyncMock(request, HttpStatusCode.BadGateway);
+        SetupProtectedSendAsyncMock(request, HttpStatusCode.BadGateway);
 
         // Act&Assert
-        Assert.ThrowsAsync<HttpRequestException>(() => _slotRepository.GetBusySlotsAsync(date));
+        Assert.ThrowsAsync<HttpRequestException>(() => _slotRepository.GetBusySlotsScheduleAsync(date));
     }
 
     [Test]
-    public async Task PostSlotAsync_ThrowsHttpRequestException_WhenResponseIsNotSuccessful()
+    public void PostSlotAsync_ThrowsHttpRequestException_WhenResponseIsNotSuccessful()
     {
         // Arrange
         var request = CreateHttpRequestMessage(null, "TakeSlot", HttpMethod.Post);
-        await SetupProtectedSendAsyncMock(request, HttpStatusCode.BadGateway);
+        SetupProtectedSendAsyncMock(request, HttpStatusCode.BadGateway);
 
         // Act&Assert
-        Assert.ThrowsAsync<HttpRequestException>(() => _slotRepository.PostSlotAsync(new AvailableSlot()));
+        Assert.ThrowsAsync<HttpRequestException>(() => _slotRepository.BookSlotAsync(new AvailableSlot()));
     }
     
     [Test]
@@ -95,10 +94,10 @@ public class SlotRepositoryTests
         var content = new StringContent(JsonConvert.SerializeObject(availableSlot), Encoding.UTF8, "application/json");
         
         var request = CreateHttpRequestMessage(content, "TakeSlot", HttpMethod.Post);
-        await SetupProtectedSendAsyncMock(request, HttpStatusCode.OK);
+        SetupProtectedSendAsyncMock(request, HttpStatusCode.OK);
 
         // Act
-        var response = await _slotRepository.PostSlotAsync(availableSlot);
+        var response = await _slotRepository.BookSlotAsync(availableSlot);
 
         // Assert
         Assert.That(response, Is.EqualTo(HttpStatusCode.OK));
@@ -121,9 +120,9 @@ public class SlotRepositoryTests
         return request;
     }
 
-    private async Task<IReturnsResult<HttpMessageHandler>> SetupProtectedSendAsyncMock(HttpRequestMessage request, HttpStatusCode responseStatusCode)
-    {
-        return _mockHttpMessageHandler
+    private void SetupProtectedSendAsyncMock(HttpRequestMessage request, HttpStatusCode responseStatusCode)
+    { 
+        _mockHttpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
@@ -148,8 +147,8 @@ public class SlotRepositoryTests
         var slot = new AvailableSlot()
         {
             FacilityId = new Guid().ToString(),
-            Start = new DateTime(2023, 7, 10, 8, 0, 0),
-            End = new DateTime(2023, 7, 10, 8, 30, 0),
+            Start = new DateTimeOffset(2023, 7, 10, 8, 0, 0, DateTimeOffset.Now.Offset),
+            End = new DateTimeOffset(2023, 7, 10, 8, 30, 0, DateTimeOffset.Now.Offset),
             Comments = "Comments",
             Patient = new Patient()
             {

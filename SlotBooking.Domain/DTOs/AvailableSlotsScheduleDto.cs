@@ -1,10 +1,10 @@
 namespace SlotBooking.Domain.DTOs;
 
-public class AvailableSlotsScheduleDto
+public record AvailableSlotsScheduleDto
 {
-    public FacilityDto? FacilityDto { get; set; }
+    public FacilityDto FacilityDto { get; set; }
 
-    public DateTime WeekStartDate { get; set; }
+    public DateTimeOffset WeekStartDate { get; set; }
 
     public List<DayScheduleDto> DaySchedules { get; set; } = new ();
 }

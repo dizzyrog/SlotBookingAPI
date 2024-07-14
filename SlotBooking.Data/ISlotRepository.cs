@@ -13,10 +13,11 @@ public interface ISlotRepository
     /// </summary>
     /// <param name="date">The date representing the Monday from which the week's busy slots are returned.</param>
     /// <returns>Week schedule with busy slots. </returns>
-    public Task<BusySlotsSchedule> GetBusySlotsAsync(DateTime date);
+    public Task<BusySlotsSchedule> GetBusySlotsScheduleAsync(DateTimeOffset date);
     /// <summary>
     /// Book a slot for a patient.
     /// </summary>
     /// <param name="availableSlot">The slot and patient information.</param>
-    public Task<HttpStatusCode> PostSlotAsync(AvailableSlot availableSlot);
+    /// <throws>HttpRequestException in case of a failure.</throws>
+    public Task<HttpStatusCode> BookSlotAsync(AvailableSlot availableSlot);
 }
