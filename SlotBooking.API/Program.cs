@@ -21,6 +21,9 @@ public class Program
         builder.Services.AddScoped<ISlotService, SlotService>();
         builder.Services.AddRouting();
 
+        builder.Services.Configure<SlotServiceOptions>(
+            builder.Configuration.GetSection(SlotServiceOptions.SlotService));
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -32,6 +35,8 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseMiddleware<ErrorHandlerMiddleware>();
+        
         app.MapControllers();
         app.UseAuthorization();
 

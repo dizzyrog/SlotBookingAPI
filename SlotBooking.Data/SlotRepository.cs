@@ -1,52 +1,71 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SlotBooking.Data.Entities;
 
 namespace SlotBooking.Data;
 
-public class SlotRepository : ISlotRepository
+/// <inheritdoc />
+public class SlotRepository(HttpClient httpClient, IOptions<SlotServiceOptions> slotServiceOptions)
+    : ISlotRepository
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly SlotServiceOptions _slotServiceOptions = slotServiceOptions.Value;
 
-    public SlotRepository(IHttpClientFactory httpClientFactory)
+    /// <inheritdoc />
+    public async Task<BusySlotsSchedule> GetBusySlotsAsync(DateTime date)
     {
-        _httpClientFactory = httpClientFactory;
-    }
+        var request = new HttpRequestMessage(HttpMethod.Get, 
+            $"{_slotServiceOptions.BaseUrl}/GetWeeklyAvailability/{date:yyyyMMdd}");
 
-    public async Task<Schedule> GetScheduleAsync(DateTime date)
-    {
-        var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, $"https://draliatest.azurewebsites.net/api/availability/GetWeeklyAvailability/{date:yyyyMMdd}");
-
-        AddAuthorizationHeader(client);
+        AddAuthorizationHeader(httpClient);
         
-        var response = await client.SendAsync(request);
+        var response = await httpClient.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new HttpRequestException($"Request failed with status code {response.StatusCode}");
+            throw new HttpRequestException($"Request failed with status code {response.StatusCode} and message {response.Content}");
         }
         
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        var schedule = JsonConvert.DeserializeObject<Schedule>(jsonResponse);
+        var schedule = JsonConvert.DeserializeObject<BusySlotsSchedule>(jsonResponse);
         PopulateDaySchedules(schedule, jsonResponse);
         
-
         return schedule;
     }
+    
+    /// <inheritdoc />
+    public async Task<HttpStatusCode> PostSlotAsync(AvailableSlot availableSlot)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, 
+            $"{_slotServiceOptions.BaseUrl}/TakeSlot");
 
-    private  void PopulateDaySchedules(Schedule schedule, string json)
+        request.Content = new StringContent(JsonConvert.SerializeObject(availableSlot), Encoding.UTF8, "application/json");
+        AddAuthorizationHeader(httpClient);
+        
+        var response = await httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException($"Request failed with status code {response.StatusCode} and message {response.Content}");
+        }
+        
+        return response.StatusCode;
+    }
+
+    private  void PopulateDaySchedules(BusySlotsSchedule busySlotsSchedule, string json)
     {
         var additionalData = JObject.Parse(json);
         foreach (var day in additionalData)
         {
             if (Enum.TryParse<DayOfWeek>(day.Key, true, out var dayOfWeek))
             {
-                var daySchedule = day.Value.ToObject<DaySchedule>();
+                var daySchedule = day.Value?.ToObject<DaySchedule>();
                 if (daySchedule?.WorkPeriod != null)
                 {
-                    schedule.DaySchedules[dayOfWeek] = daySchedule;
+                    busySlotsSchedule.DaySchedules[dayOfWeek] = daySchedule;
                 }
             }
         }
@@ -54,7 +73,11 @@ public class SlotRepository : ISlotRepository
     
     private void AddAuthorizationHeader(HttpClient client)
     {
-        var credentials = System.Text.Encoding.UTF8.GetBytes("techuser:secretpassWord");
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));
+        var credentials = Encoding.UTF8.GetBytes(
+            $"{_slotServiceOptions.Username}:{_slotServiceOptions.Password}");
+        
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+            Convert.ToBase64String(credentials));
     }
 }
+
