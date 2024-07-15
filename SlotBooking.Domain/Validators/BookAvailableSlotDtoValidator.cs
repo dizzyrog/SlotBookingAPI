@@ -9,7 +9,7 @@ public class BookAvailableSlotDtoValidator : AbstractValidator<BookAvailableSlot
     {
         RuleFor(slot => slot.FacilityId)
             .NotEmpty()
-            .WithMessage("FacilityId is required. from Validator");
+            .WithMessage("FacilityId is required.");
 
         RuleFor(slot => slot.Start)
             .NotEmpty()
@@ -25,7 +25,7 @@ public class BookAvailableSlotDtoValidator : AbstractValidator<BookAvailableSlot
             .Must((slot, end) => end > DateTimeOffset.Now)
             .WithMessage("Slot end should be in the future.")
             .Must((slot, end) => end > slot.Start)
-            .WithMessage("Slot end should be after end.");
+            .WithMessage("Slot end should be after start.");
         
         RuleFor(slot => slot.Patient)
             .NotEmpty()

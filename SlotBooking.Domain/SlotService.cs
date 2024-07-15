@@ -1,11 +1,9 @@
-﻿using System.Net;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
 using SlotBooking.Data;
 using SlotBooking.Data.Entities;
 using SlotBooking.Domain.DTOs;
 using SlotBooking.Domain.Exceptions;
-using SlotBooking.Domain.Validators;
 using AvailableSlot = SlotBooking.Data.Entities.AvailableSlot;
 using BusySlot = SlotBooking.Data.Entities.BusySlot;
 using DaySchedule = SlotBooking.Data.Entities.DaySchedule;
@@ -13,17 +11,20 @@ using DaySchedule = SlotBooking.Data.Entities.DaySchedule;
 namespace SlotBooking.Domain;
 
 /// <inheritdoc />
-public class SlotService(ISlotRepository repository, IValidator<DateTimeOffset> dateTimeOffsetValidator, ILogger<SlotService> logger) : ISlotService
+public class SlotService(
+    ISlotRepository repository,
+    IValidator<DateTimeOffset> dateTimeOffsetValidator,
+    ILogger<SlotService> logger) : ISlotService
 {
-
     /// <inheritdoc />
     public async Task<AvailableSlotsScheduleDto> GetAvailableSlotsAsync(DateTimeOffset date)
     {
         await dateTimeOffsetValidator.ValidateAndThrowAsync(date);
 
         var busySlotsSchedule = await repository.GetBusySlotsScheduleAsync(date);
-        
+
         ArgumentNullException.ThrowIfNull(busySlotsSchedule, nameof(busySlotsSchedule));
+        ArgumentNullException.ThrowIfNull(busySlotsSchedule.Facility, nameof(busySlotsSchedule.Facility));
 
         var availableSlotsSchedule = new AvailableSlotsScheduleDto()
         {
@@ -62,7 +63,7 @@ public class SlotService(ISlotRepository repository, IValidator<DateTimeOffset> 
     public async Task BookSlotAsync(BookAvailableSlotDto bookAvailableSlotDto)
     {
         await ValidateSlotIsAvailable(bookAvailableSlotDto);
-        
+
         var slot = new AvailableSlot()
         {
             FacilityId = bookAvailableSlotDto.FacilityId,
@@ -71,10 +72,10 @@ public class SlotService(ISlotRepository repository, IValidator<DateTimeOffset> 
             Comments = bookAvailableSlotDto.Comments,
             Patient = new Patient()
             {
-                Email = bookAvailableSlotDto.Patient?.Email,
-                Name = bookAvailableSlotDto.Patient?.Name,
-                Phone = bookAvailableSlotDto.Patient?.Phone,
-                SecondName = bookAvailableSlotDto.Patient?.SecondName
+                Email = bookAvailableSlotDto.Patient.Email,
+                Name = bookAvailableSlotDto.Patient.Name,
+                Phone = bookAvailableSlotDto.Patient.Phone,
+                SecondName = bookAvailableSlotDto.Patient.SecondName
             }
         };
 
@@ -85,7 +86,8 @@ public class SlotService(ISlotRepository repository, IValidator<DateTimeOffset> 
         catch (HttpRequestException e)
         {
             logger.LogError(e, "Failed to book a slot");
-            throw new FailedToBookAvailableSlotException($"Failed to book a slot. {e.HttpRequestError.ToString()}", e.InnerException);
+            throw new FailedToBookAvailableSlotException($"Failed to book a slot. {e.HttpRequestError.ToString()}",
+                e.InnerException);
         }
     }
 
@@ -93,21 +95,25 @@ public class SlotService(ISlotRepository repository, IValidator<DateTimeOffset> 
     {
         var weekStartDate = GetMondayOfWeek(bookAvailableSlotDto.Start);
         var availableSlotsSchedule = await GetAvailableSlotsAsync(weekStartDate);
-        var daySchedule = availableSlotsSchedule.DaySchedules.Find(x => x.DayOfWeek == bookAvailableSlotDto.Start.DayOfWeek.ToString());
-        if (daySchedule == null || 
-            !daySchedule.AvailableSlots.Any(x => x.Start == bookAvailableSlotDto.Start && x.End == bookAvailableSlotDto.End))
+        var daySchedule =
+            availableSlotsSchedule.DaySchedules.Find(
+                x => x.DayOfWeek == bookAvailableSlotDto.Start.DayOfWeek.ToString());
+        if (daySchedule == null ||
+            !daySchedule.AvailableSlots.Any(x =>
+                x.Start == bookAvailableSlotDto.Start && x.End == bookAvailableSlotDto.End))
         {
             throw new SlotNotAvailableException("The slot is not available.");
-        }  
+        }
     }
 
     private DateTimeOffset GetMondayOfWeek(DateTimeOffset date)
     {
-        int daysToSubtract = (int)date.DayOfWeek - (int)DayOfWeek.Monday;
+        int daysToSubtract = (int) date.DayOfWeek - (int) DayOfWeek.Monday;
         if (daysToSubtract < 0)
         {
             daysToSubtract += 7;
         }
+
         return date.AddDays(-daysToSubtract).Date;
     }
 

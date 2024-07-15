@@ -1,4 +1,3 @@
-using System.Net;
 using SlotBooking.Domain.DTOs;
 
 namespace SlotBooking.Domain;
