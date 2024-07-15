@@ -29,6 +29,10 @@ builder.Services.AddFluentValidationAutoValidation();
 
 //builder.Services.AddFluentValidationRulesToSwagger();
 
+// Add user secrets support
+builder.Configuration.AddUserSecrets<Program>();
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.Configure<SlotServiceOptions>(
     builder.Configuration.GetSection(SlotServiceOptions.SlotService));
 

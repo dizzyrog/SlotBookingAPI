@@ -2,6 +2,7 @@ using System.Net;
 using NUnit.Framework;
 using System.Net.Http.Headers;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
@@ -32,7 +33,7 @@ public class SlotRepositoryTests
             Password = "pass1234"
         });
 
-        _slotRepository = new SlotRepository(httpClient, _slotServiceOptions);
+        _slotRepository = new SlotRepository(httpClient, _slotServiceOptions, new Mock<ILogger<SlotRepository>>().Object );
     }
 
     [Test]

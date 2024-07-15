@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,7 +10,8 @@ using SlotBooking.Data.Entities;
 namespace SlotBooking.Data;
 
 /// <inheritdoc />
-public class SlotRepository(HttpClient httpClient, IOptions<SlotServiceOptions> slotServiceOptions)
+public class SlotRepository(HttpClient httpClient, IOptions<SlotServiceOptions> slotServiceOptions,
+    ILogger<SlotRepository> logger)
     : ISlotRepository
 {
     private readonly SlotServiceOptions _slotServiceOptions = slotServiceOptions.Value;
@@ -17,6 +19,7 @@ public class SlotRepository(HttpClient httpClient, IOptions<SlotServiceOptions> 
     /// <inheritdoc />
     public async Task<BusySlotsSchedule> GetBusySlotsScheduleAsync(DateTimeOffset date)
     {
+        
         var request = new HttpRequestMessage(HttpMethod.Get, 
             $"{_slotServiceOptions.BaseUrl}/GetWeeklyAvailability/{date:yyyyMMdd}");
 
