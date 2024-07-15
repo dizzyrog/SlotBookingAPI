@@ -13,15 +13,15 @@ The Slot Booking API is a C# application designed to manage and book slots for v
 
 # How to run locally using docker
 
-0. Ensure Docker is installed.
+Prerequisite: Ensure Docker is installed.
 1. Build the Docker image: open a terminal and navigate to the root directory of the project. Run the following command to build the Docker image:
 ```sh
 docker build -t slotbooking-api .
 ```
 2. Run the Docker container:
 > [!NOTE]
-> Provide your credentials instead of USERNAME and PASSWORD for accessing external service
-To run your application, execute:
+> Provide  credentials instead of USERNAME and PASSWORD for accessing external service
+
 ```sh
 docker run -e SlotService__Username=USERNAME -e SlotService__Password=PASSWORD -p 8080:8080 slotbooking-api
 ```
@@ -29,13 +29,11 @@ docker run -e SlotService__Username=USERNAME -e SlotService__Password=PASSWORD -
 
 # How to run locally using CLI
 
-
-
-0. Ensure .NET 8 is installed.
-1. Set up secrets:
+Prerequisite: Ensure .NET 8 is installed.
+1. Set up secrets: open directory yourpath/SlotBookingAPI/SlotBooking.API and execute:
 > [!NOTE]
-> Provide your credentials instead of USERNAME and PASSWORD for accessing external service
-Open directory yourpath/SlotBookingAPI/SlotBooking.API
+> Provide credentials instead of USERNAME and PASSWORD for accessing external service
+
 ```sh
 dotnet user-secrets init 
 dotnet user-secrets set "SlotService:Password" "PASSWORD"
