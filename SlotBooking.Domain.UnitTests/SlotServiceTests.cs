@@ -19,22 +19,22 @@ public class SlotServiceTests
     public void SetUp()
     {
         _mockRepository = new Mock<ISlotRepository>();
-        _slotService = new SlotService(_mockRepository.Object, new GetAvailableSlotsForADateValidator(), 
-            new Mock<ILogger<SlotService>>().Object );
+        _slotService = new SlotService(_mockRepository.Object, new GetAvailableSlotsForADateValidator(),
+            new Mock<ILogger<SlotService>>().Object);
     }
 
     [Test]
     public async Task GetAvailableSlotsAsync_ReturnsAvailableSlotsSchedule_WhenCorrectInput()
     {
         // Arrange
-        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestBusySlotsSchedule(date);
 
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
 
         // Act
         var availableSlotsAsync = await _slotService.GetAvailableSlotsAsync(date);
-        
+
         // Assert
         Assert.That(availableSlotsAsync.FacilityDto.FacilityId, Is.EqualTo(busySlotsSchedule.Facility.FacilityId));
         Assert.That(availableSlotsAsync.FacilityDto.Name, Is.EqualTo(busySlotsSchedule.Facility.Name));
@@ -43,18 +43,18 @@ public class SlotServiceTests
         Assert.That(availableSlotsAsync.DaySchedules.Count, Is.EqualTo(2));
 
         var mondaySchedule = availableSlotsAsync.DaySchedules.First();
-        
+
         Assert.That(mondaySchedule.DayOfWeek, Is.EqualTo(DayOfWeek.Monday.ToString()));
         Assert.That(mondaySchedule.AvailableSlots.Count, Is.EqualTo(4));
         Assert.That(mondaySchedule.AvailableSlots[0].Start, Is.EqualTo(date.AddHours(9).AddMinutes(20)));
-        
+
         var fridaySchedule = availableSlotsAsync.DaySchedules.Find(x => x.DayOfWeek == DayOfWeek.Friday.ToString());
-        
+
         Assert.That(fridaySchedule.DayOfWeek, Is.EqualTo(DayOfWeek.Friday.ToString()));
         Assert.That(fridaySchedule.AvailableSlots.Count, Is.EqualTo(4));
         Assert.That(fridaySchedule.AvailableSlots[0].Start, Is.EqualTo(date.AddDays(4).AddHours(12)));
     }
-    
+
     [Test]
     public async Task GetAvailableSlotsAsync_ReturnsAvailableSlotsSchedule_WhenAllSlotsBusy()
     {
@@ -66,7 +66,7 @@ public class SlotServiceTests
 
         // Act
         var availableSlotsAsync = await _slotService.GetAvailableSlotsAsync(date);
-        
+
         // Assert
         Assert.That(availableSlotsAsync.FacilityDto.FacilityId, Is.EqualTo(busySlotsSchedule.Facility.FacilityId));
         Assert.That(availableSlotsAsync.FacilityDto.Name, Is.EqualTo(busySlotsSchedule.Facility.Name));
@@ -75,23 +75,23 @@ public class SlotServiceTests
         Assert.That(availableSlotsAsync.DaySchedules.Count, Is.EqualTo(1));
 
         var tuesdaySchedule = availableSlotsAsync.DaySchedules.First();
-        
+
         Assert.That(tuesdaySchedule.DayOfWeek, Is.EqualTo(DayOfWeek.Tuesday.ToString()));
         Assert.That(tuesdaySchedule.AvailableSlots.Count, Is.EqualTo(0));
     }
-    
+
     [Test]
     public async Task GetAvailableSlotsAsync_ReturnsAvailableSlotsSchedule_WhenNoBusySlots()
     {
         // Arrange
-        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestNoBusySlotsSchedule();
 
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
 
         // Act
         var availableSlotsAsync = await _slotService.GetAvailableSlotsAsync(date);
-        
+
         // Assert
         Assert.That(availableSlotsAsync.FacilityDto.FacilityId, Is.EqualTo(busySlotsSchedule.Facility.FacilityId));
         Assert.That(availableSlotsAsync.FacilityDto.Name, Is.EqualTo(busySlotsSchedule.Facility.Name));
@@ -100,43 +100,43 @@ public class SlotServiceTests
         Assert.That(availableSlotsAsync.DaySchedules.Count, Is.EqualTo(1));
 
         var thursdaySchedule = availableSlotsAsync.DaySchedules.First();
-        
+
         Assert.That(thursdaySchedule.DayOfWeek, Is.EqualTo(DayOfWeek.Thursday.ToString()));
         Assert.That(thursdaySchedule.AvailableSlots.Count, Is.EqualTo(6));
     }
-    
+
     [Test]
     public async Task GetAvailableSlotsAsync_ThrowsArgumentNullException_WhenBusySlotsScheduleNull()
     {
         // Arrange
-        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0, DateTimeOffset.Now.Offset);
 
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync((BusySlotsSchedule) null);
-        
+
         // Act&Assert
-        var ex = Assert.ThrowsAsync<ArgumentNullException>(() =>  _slotService.GetAvailableSlotsAsync(date));
+        var ex = Assert.ThrowsAsync<ArgumentNullException>(() => _slotService.GetAvailableSlotsAsync(date));
         Assert.That(ex.ParamName, Is.EqualTo("busySlotsSchedule"));
     }
-    
+
     [Test]
     public async Task GetAvailableSlotsAsync_ThrowsArgumentNullException_WhenFacilityNull()
     {
         // Arrange
-        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = new BusySlotsSchedule();
 
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
-        
+
         // Act&Assert
-        var ex= Assert.ThrowsAsync<ArgumentNullException>(() =>  _slotService.GetAvailableSlotsAsync(date));
+        var ex = Assert.ThrowsAsync<ArgumentNullException>(() => _slotService.GetAvailableSlotsAsync(date));
         Assert.That(ex.ParamName, Is.EqualTo("Facility"));
     }
-    
+
     [Test]
     public async Task GetAvailableSlotsAsync_ThrowsArgumentNullException_WhenWorkPeriodNull()
     {
         // Arrange
-        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 29, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = new BusySlotsSchedule
         {
             Facility = new Facility
@@ -155,23 +155,23 @@ public class SlotServiceTests
         };
 
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
-        
+
         // Act&Assert
-        var ex= Assert.ThrowsAsync<ArgumentNullException>(() =>  _slotService.GetAvailableSlotsAsync(date));
+        var ex = Assert.ThrowsAsync<ArgumentNullException>(() => _slotService.GetAvailableSlotsAsync(date));
         Assert.That(ex.ParamName, Is.EqualTo("WorkPeriod"));
     }
-    
+
     [Test]
     public async Task BookSlotAsync_DoesNotThrowException_WhenCorrectInput()
     {
         // Arrange
         var bookSlotDto = CreateTestBookAvailableSlotDto();
-        var date = new DateTimeOffset(2024, 7, 22, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 22, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestNoBusySlotsSchedule();
-        
+
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
         _mockRepository.Setup(r => r.BookSlotAsync(It.IsAny<AvailableSlot>()));
-        
+
         try
         {
             // Act
@@ -189,17 +189,17 @@ public class SlotServiceTests
     {
         // Arrange
         var bookSlotDto = CreateTestBookAvailableSlotDto();
-        var date = new DateTimeOffset(2024, 7, 22, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 22, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestNoBusySlotsSchedule();
-        
+
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
         _mockRepository.Setup(r => r.BookSlotAsync(It.IsAny<AvailableSlot>()))
             .ThrowsAsync(new HttpRequestException());
-        
+
         // Act&Assert
-        Assert.ThrowsAsync<FailedToBookAvailableSlotException>(() =>  _slotService.BookSlotAsync(bookSlotDto));
+        Assert.ThrowsAsync<FailedToBookAvailableSlotException>(() => _slotService.BookSlotAsync(bookSlotDto));
     }
-    
+
     [Test]
     public async Task BookSlotAsync_ThrowsSlotNotAvailableException_WhenSlotIsNotAvailable()
     {
@@ -207,8 +207,8 @@ public class SlotServiceTests
         var bookSlotDto = new BookAvailableSlotDto
         {
             FacilityId = new Guid().ToString(),
-            Start = new DateTimeOffset(2024, 7, 23, 9, 0, 0,DateTimeOffset.Now.Offset),
-            End = new DateTimeOffset(2024, 7, 23, 9, 10, 0,DateTimeOffset.Now.Offset),
+            Start = new DateTimeOffset(2024, 7, 23, 9, 0, 0, DateTimeOffset.Now.Offset),
+            End = new DateTimeOffset(2024, 7, 23, 9, 10, 0, DateTimeOffset.Now.Offset),
             Comments = "Test Booking 123",
             Patient = new PatientDto()
             {
@@ -218,15 +218,15 @@ public class SlotServiceTests
                 SecondName = "Smith"
             }
         };
-        var date = new DateTimeOffset(2024, 7, 22, 0, 0, 0,DateTimeOffset.Now.Offset);
+        var date = new DateTimeOffset(2024, 7, 22, 0, 0, 0, DateTimeOffset.Now.Offset);
         var busySlotsSchedule = CreateSimpleTestAllSlotsAreBusySchedule(date);
-        
+
         _mockRepository.Setup(r => r.GetBusySlotsScheduleAsync(date)).ReturnsAsync(busySlotsSchedule);
         _mockRepository.Setup(r => r.BookSlotAsync(It.IsAny<AvailableSlot>()))
             .ThrowsAsync(new HttpRequestException());
 
         // Act&Assert
-        Assert.ThrowsAsync<SlotNotAvailableException>(() =>  _slotService.BookSlotAsync(bookSlotDto));
+        Assert.ThrowsAsync<SlotNotAvailableException>(() => _slotService.BookSlotAsync(bookSlotDto));
     }
 
     private BusySlotsSchedule CreateSimpleTestBusySlotsSchedule(DateTimeOffset date)
@@ -268,14 +268,13 @@ public class SlotServiceTests
                                 Start = date.AddHours(10).AddMinutes(20),
                                 End = date.AddHours(10).AddMinutes(30)
                             }
-
                         ]
                     }
                 }
             },
             SlotDurationMinutes = 10
         };
-        
+
         schedule.DaySchedules.Add(DayOfWeek.Friday, new DaySchedule()
         {
             WorkPeriod = new WorkPeriod
@@ -302,7 +301,7 @@ public class SlotServiceTests
         });
         return schedule;
     }
-    
+
     private BusySlotsSchedule CreateSimpleTestAllSlotsAreBusySchedule(DateTimeOffset date)
     {
         var schedule = new BusySlotsSchedule
@@ -360,17 +359,16 @@ public class SlotServiceTests
                                 Start = date.AddDays(1).AddHours(9).AddMinutes(50),
                                 End = date.AddDays(1).AddHours(10)
                             }
-
                         ]
                     }
                 }
             },
             SlotDurationMinutes = 10
         };
-        
+
         return schedule;
     }
-    
+
     private BusySlotsSchedule CreateSimpleTestNoBusySlotsSchedule()
     {
         var schedule = new BusySlotsSchedule
@@ -397,17 +395,17 @@ public class SlotServiceTests
             },
             SlotDurationMinutes = 10
         };
-        
+
         return schedule;
     }
-    
-    private  BookAvailableSlotDto CreateTestBookAvailableSlotDto()
+
+    private BookAvailableSlotDto CreateTestBookAvailableSlotDto()
     {
         var bookSlotDto = new BookAvailableSlotDto
         {
             FacilityId = new Guid().ToString(),
-            Start = new DateTimeOffset(2024, 7, 25, 9, 0, 0,DateTimeOffset.Now.Offset),
-            End = new DateTimeOffset(2024, 7, 25, 9, 10, 0,DateTimeOffset.Now.Offset),
+            Start = new DateTimeOffset(2024, 7, 25, 9, 0, 0, DateTimeOffset.Now.Offset),
+            End = new DateTimeOffset(2024, 7, 25, 9, 10, 0, DateTimeOffset.Now.Offset),
             Comments = "Test Booking",
             Patient = new PatientDto()
             {
@@ -420,5 +418,3 @@ public class SlotServiceTests
         return bookSlotDto;
     }
 }
-
-        

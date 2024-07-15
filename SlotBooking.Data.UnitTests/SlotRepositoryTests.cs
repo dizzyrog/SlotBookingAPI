@@ -33,7 +33,8 @@ public class SlotRepositoryTests
             Password = "pass1234"
         });
 
-        _slotRepository = new SlotRepository(httpClient, _slotServiceOptions, new Mock<ILogger<SlotRepository>>().Object );
+        _slotRepository =
+            new SlotRepository(httpClient, _slotServiceOptions, new Mock<ILogger<SlotRepository>>().Object);
     }
 
     [Test]
@@ -44,9 +45,9 @@ public class SlotRepositoryTests
         var jsonResponseMock = JToken.Parse(
             await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "appsettings.test.json"))
         ).ToString();
-        
+
         var content = new StringContent(jsonResponseMock, Encoding.UTF8, "application/json");
-        
+
         var request = CreateHttpRequestMessage(content, $"GetWeeklyAvailability/{date:yyyyMMdd}", HttpMethod.Get);
         SetupProtectedSendAsyncMock(request, HttpStatusCode.OK);
 
@@ -86,14 +87,14 @@ public class SlotRepositoryTests
         // Act&Assert
         Assert.ThrowsAsync<HttpRequestException>(() => _slotRepository.BookSlotAsync(new AvailableSlot()));
     }
-    
+
     [Test]
     public async Task PostSlotAsync_ReturnsOk_WhenCorrectInput()
     {
         // Arrange
         var availableSlot = CreateAvailableSlot();
         var content = new StringContent(JsonConvert.SerializeObject(availableSlot), Encoding.UTF8, "application/json");
-        
+
         var request = CreateHttpRequestMessage(content, "TakeSlot", HttpMethod.Post);
         SetupProtectedSendAsyncMock(request, HttpStatusCode.OK);
 
@@ -122,7 +123,7 @@ public class SlotRepositoryTests
     }
 
     private void SetupProtectedSendAsyncMock(HttpRequestMessage request, HttpStatusCode responseStatusCode)
-    { 
+    {
         _mockHttpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(

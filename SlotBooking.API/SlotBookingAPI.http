@@ -1,6 +1,25 @@
-@SlotBookingAPI_HostAddress = http://localhost:5094
+@SlotBookingAPI_HostAddress = https://localhost:7088
 
-GET {{SlotBookingAPI_HostAddress}}/weatherforecast/
+### Get Available Slots
+GET {{SlotBookingAPI_HostAddress}}/api/slots/2024-07-15
 Accept: application/json
 
 ###
+
+### Book a Slot
+POST {{SlotBookingAPI_HostAddress}}/api/slots/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "Start": "2024-09-16T09:00:00+02:00",
+  "FacilityId" : "7960f43f-67dc-4bc5-a52b-9a3494306749",
+  "End": "2024-09-16T09:10:00+02:00",
+  "Patient": {
+    "Name": "Mario",
+    "SecondName": "Neta",
+    "Email": "mario.neta@example.com",
+    "Phone": "555 44 33 22"
+  }
+}
+

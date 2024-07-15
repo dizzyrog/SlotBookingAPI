@@ -26,7 +26,7 @@ public class BookAvailableSlotDtoValidator : AbstractValidator<BookAvailableSlot
             .WithMessage("Slot end should be in the future.")
             .Must((slot, end) => end > slot.Start)
             .WithMessage("Slot end should be after start.");
-        
+
         RuleFor(slot => slot.Patient)
             .NotEmpty()
             .WithMessage("Patient information is required.");

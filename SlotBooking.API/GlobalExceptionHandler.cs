@@ -27,6 +27,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 break;
+
             case ValidationException validationException:
                 problemDetails = new ProblemDetails()
                 {
@@ -36,9 +37,9 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     Detail = validationException.Errors.Select(error => error.ErrorMessage)
                         .Aggregate((current, next) => $"{current}; {next}")
                 };
-                
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 break;
+
             case FailedToBookAvailableSlotException failedToBookAvailableSlotException:
                 problemDetails = new ProblemDetails()
                 {
@@ -47,9 +48,9 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
                     Detail = failedToBookAvailableSlotException.Message
                 };
-                
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 break;
+
             case SlotNotAvailableException slotNotAvailableException:
                 problemDetails = new ProblemDetails()
                 {
@@ -58,9 +59,9 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
                     Detail = slotNotAvailableException.Message
                 };
-                
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 break;
+
             default:
                 problemDetails = new ProblemDetails()
                 {

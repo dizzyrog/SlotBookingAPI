@@ -1,4 +1,8 @@
 using FluentValidation;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SlotBooking.API;
 using SlotBooking.Data;
@@ -27,7 +31,6 @@ builder.Services.AddScoped<IValidator<BookAvailableSlotDto>, BookAvailableSlotDt
 
 builder.Services.AddFluentValidationAutoValidation();
 
-//builder.Services.AddFluentValidationRulesToSwagger();
 
 // Add user secrets support
 builder.Configuration.AddUserSecrets<Program>();
@@ -35,6 +38,30 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.Configure<SlotServiceOptions>(
     builder.Configuration.GetSection(SlotServiceOptions.SlotService));
+
+const string serviceName = "SlotBooking.API";
+
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService(serviceName))
+        .AddConsoleExporter();
+});
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(serviceName))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddConsoleExporter())
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddProcessInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddConsoleExporter());
+
 
 var app = builder.Build();
 

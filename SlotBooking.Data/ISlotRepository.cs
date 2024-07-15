@@ -14,6 +14,7 @@ public interface ISlotRepository
     /// <param name="date">The date representing the Monday from which the week's busy slots are returned.</param>
     /// <returns>Week schedule with busy slots. </returns>
     public Task<BusySlotsSchedule> GetBusySlotsScheduleAsync(DateTimeOffset date);
+
     /// <summary>
     /// Book a slot for a patient.
     /// </summary>

@@ -6,5 +6,5 @@ public record AvailableSlotsScheduleDto
 
     public DateTimeOffset WeekStartDate { get; set; }
 
-    public List<DayScheduleDto> DaySchedules { get; set; } = new ();
+    public List<DayScheduleDto> DaySchedules { get; set; } = new();
 }
