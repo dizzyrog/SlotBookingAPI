@@ -17,46 +17,46 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         ProblemDetails problemDetails;
         switch (exception)
         {
-            case ArgumentNullException e1:
+            case ArgumentNullException argumentNullException:
                 problemDetails = new ProblemDetails()
                 {
                     Status = StatusCodes.Status400BadRequest,
                     Title = "Validation Error",
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
-                    Detail = e1.Message
+                    Detail = argumentNullException.Message
                 };
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 break;
-            case ValidationException e2:
+            case ValidationException validationException:
                 problemDetails = new ProblemDetails()
                 {
                     Status = StatusCodes.Status400BadRequest,
                     Title = "Validation Error",
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
-                    Detail = e2.Errors.Select(error => error.ErrorMessage)
+                    Detail = validationException.Errors.Select(error => error.ErrorMessage)
                         .Aggregate((current, next) => $"{current}; {next}")
                 };
                 
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 break;
-            case FailedToBookAvailableSlotException e3:
+            case FailedToBookAvailableSlotException failedToBookAvailableSlotException:
                 problemDetails = new ProblemDetails()
                 {
                     Status = StatusCodes.Status400BadRequest,
                     Title = "Validation Error",
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
-                    Detail = e3.Message
+                    Detail = failedToBookAvailableSlotException.Message
                 };
                 
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 break;
-            case SlotNotAvailableException e4:
+            case SlotNotAvailableException slotNotAvailableException:
                 problemDetails = new ProblemDetails()
                 {
                     Status = StatusCodes.Status400BadRequest,
                     Title = "Validation Error",
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
-                    Detail = e4.Message
+                    Detail = slotNotAvailableException.Message
                 };
                 
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;

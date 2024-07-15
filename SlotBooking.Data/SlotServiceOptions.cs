@@ -6,7 +6,7 @@ namespace SlotBooking.Data;
 public class SlotServiceOptions
 {
     public const string SlotService = "SlotService";
-    public string BaseUrl { get; set; } = String.Empty;
-    public string Username { get; set; }= String.Empty;
-    public string Password { get; set; }= String.Empty;
+    public string BaseUrl { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }

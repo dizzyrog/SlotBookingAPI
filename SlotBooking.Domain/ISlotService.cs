@@ -13,6 +13,7 @@ public interface ISlotService
     /// <param name="date">The date representing the Monday from which the week's available slots are returned.</param>
     /// <returns>Week schedule with available slots. </returns>
     public Task<AvailableSlotsScheduleDto> GetAvailableSlotsAsync(DateTimeOffset date);
+
     /// <summary>
     /// Book an available slot for a patient.
     /// </summary>

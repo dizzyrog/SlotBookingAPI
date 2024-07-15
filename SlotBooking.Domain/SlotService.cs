@@ -39,7 +39,7 @@ public class SlotService(
 
         foreach (var (dayOfWeek, daySchedule) in busySlotsSchedule.DaySchedules)
         {
-            DateTimeOffset dateForDayOfWeek = date;
+            var dateForDayOfWeek = date;
 
             if (dayOfWeek != DayOfWeek.Monday)
             {
@@ -108,7 +108,7 @@ public class SlotService(
 
     private DateTimeOffset GetMondayOfWeek(DateTimeOffset date)
     {
-        int daysToSubtract = (int) date.DayOfWeek - (int) DayOfWeek.Monday;
+        var daysToSubtract = (int) date.DayOfWeek - (int) DayOfWeek.Monday;
         if (daysToSubtract < 0)
         {
             daysToSubtract += 7;
@@ -119,7 +119,7 @@ public class SlotService(
 
     private DateTimeOffset GetDateForDayOfWeek(DateTimeOffset mondayDate, DayOfWeek targetDay)
     {
-        int daysDifference = ((int) targetDay - (int) DayOfWeek.Monday + 7) % 7;
+        var daysDifference = ((int) targetDay - (int) DayOfWeek.Monday + 7) % 7;
         return mondayDate.AddDays(daysDifference);
     }
 
